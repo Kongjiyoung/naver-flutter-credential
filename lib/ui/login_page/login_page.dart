@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:oauthapp/_core/http.dart';
+
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -9,27 +10,32 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("카카오 로그인"),
+        title: Text("네이버 로그인"),
       ),
       body: ElevatedButton(
-        child: Text("카카오로그인"),
+        child: Text("네이버로그인"),
         onPressed: () async {
-          kakaoLogin();
+          naverLogin();
         },
       ),
     );
   }
 
-  void kakaoLogin() async {
+  void naverLogin() async {
     try {
       // 1. 크리덴셜 로그인 - 토큰 받기
-      OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+      NaverLoginResult res = await FlutterNaverLogin.logIn();
+      final NaverLoginResult result = await FlutterNaverLogin.logIn();
+      NaverAccessToken res1 = await FlutterNaverLogin.currentAccessToken;
+      final accesToken = res1.accessToken;
+
+
       // Bl_yCbOpzJe4vQGNCBX_cQI0VVBvdUm3AAAAAQo9dNsAAAGP3IxzfMYNwJ_muSR4
-      print('카카오계정으로 로그인 성공 ${token.accessToken}');
+      print('네이버계정으로 로그인 성공 ${accesToken}');
 
       // 2. 토큰(카카오)을 스프링서버에 전달하기 (스프링 서버한테 나 인증했어!! 라고 알려주는것)
       final response = await dio.get("/oauth/callback",
-          queryParameters: {"accessToken": token.accessToken});
+          queryParameters: {"accessToken": accesToken});
 
       // 3. 토큰(스프링서버) 응답받기
       final blogAccessToken = response.headers["Authorization"]!.first;
@@ -40,7 +46,7 @@ class LoginPage extends StatelessWidget {
 
       // 5. static, const 변수, riverpod 상태관리 (생략)
     } catch (error) {
-      print('카카오계정으로 로그인 실패 $error');
+      print('네이버계정으로 로그인 실패 $error');
     }
   }
 }
